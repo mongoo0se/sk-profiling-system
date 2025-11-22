@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SK Profiling System</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.55);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal {
+      background: #fff;
+      padding: 26px 22px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 380px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+      text-align: center;
+      animation: popIn 0.25s ease;
+    }
+    @keyframes popIn {
+      from { transform: scale(0.85); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+
+    .modal h2 {
+      margin-bottom: 18px;
+      color: #1e1e1e;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .modal input {
+      width: 100%;
+      padding: 10px;
+      font-size: 15px;
+      margin-bottom: 15px;
+      border: 1px solid #bbb;
+      border-radius: 6px;
+    }
+
+    .modal button {
+      padding: 10px 20px;
+      font-size: 15px;
+      margin: 5px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .modal .confirm-btn {
+      background: #007bff;
+      color: white;
+    }
+    .modal .cancel-btn {
+      background: #ccc;
+      color: black;
+    }
+
+    .modal .confirm-btn:hover {
+      background: #0056b3;
+    }
+    .modal .cancel-btn:hover {
+      background: #999;
+    }
+
+    /* ================================
+       PAGE LAYOUT (LOGOS + PANELS)
+       ================================ */
+
+    .top-logos {
+      display: flex;
+      justify-content: center;
+      gap: 25px;
+      margin-top: 30px;
+      margin-bottom: 10px;
+    }
+    .top-logos img {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      border: 3px solid #FFD700;
+      object-fit: cover;
+    }
+
+    .main-section {
+      max-width: 1200px;
+      margin: 30px auto;
+      display: flex;
+      gap: 25px;
+      justify-content: center;
+      padding: 20px;
+      flex-wrap: wrap;
+    }
+
+    .announcement-box {
+      background: #00274D;
+      border: 3px solid #FFD700;
+      padding: 20px;
+      width: 55%;
+      min-width: 320px;
+      border-radius: 12px;
+      color: #FFD700;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .button-panel {
+      background: #00274D;
+      border: 3px solid #FFD700;
+      padding: 20px;
+      width: 30%;
+      min-width: 280px;
+      text-align: center;
+      border-radius: 12px;
+      color: #FFD700;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      height: fit-content;
+    }
+
+    .button-panel button {
+      width: 90%;
+      margin-bottom: 12px;
+      padding: 12px;
+      background: #0056b3;
+      border: none;
+      border-radius: 6px;
+      color: #FFD700;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .button-panel button:hover {
+      background: #FFD700;
+      color: #00274D;
+    }
+
+    .privacy-btn {
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      z-index: 9999;
+      background: #FFD700;
+      color: #00274D;
+      padding: 10px 18px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* Fix input overflowing outside modal */
+.modal input {
+  box-sizing: border-box !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  overflow: hidden;
+}
+
+/* Ensure modal cannot stretch */
+.modal {
+  max-width: 380px !important;
+  width: 90% !important;
+  box-sizing: border-box !important;
+}
+
+/* Prevent global styles from affecting modal layout */
+.modal * {
+  max-width: 100% !important;
+}
+  </style>
+</head>
+
+<body>
+
+  <!-- ===== TOP LOGOS ===== -->
+  <div class="top-logos">
+    <img src="brgy.jpg" alt="Barangay Logo">
+    <img src="sk.jpg" alt="SK Logo">
+  </div>
+
+  <h1 style="text-align:center;color:#FFD700;">Sangguniang Kabataan Profiling System</h1>
+
+  <!-- ===== MAIN CONTENT SECTION ===== -->
+  <div class="main-section">
+
+    <!-- ANNOUNCEMENT BOX -->
+    <div class="announcement-box">
+      <h2>Announcements</h2>
+      <div id="announcementContent" style="font-size:1.1rem;"></div>
+    </div>
+
+    <!-- LOGIN BUTTON PANEL -->
+    <div class="button-panel">
+      <button onclick="showLogin('member')">Member Login</button>
+      <button onclick="showRegister()">Sign Up</button>
+      <button onclick="showLogin('admin')">Admin Login</button>
+    </div>
+
+  </div>
+
+  <!-- MEMBER LOGIN MODAL -->
+  <div class="modal-overlay" id="loginModal">
+    <div class="modal">
+      <h2>Member Login</h2>
+      <input type="email" id="loginEmail" placeholder="Email" autocomplete="off">
+      <input type="password" id="loginPassword" placeholder="Password" autocomplete="off">
+      <button class="confirm-btn" onclick="loginMember()">Login</button>
+      <button class="cancel-btn" onclick="closeModal('loginModal')">Cancel</button>
+    </div>
+  </div>
+
+  <!-- ADMIN LOGIN -->
+  <div class="modal-overlay" id="adminModal">
+    <div class="modal">
+      <h2>Admin Login</h2>
+      <input type="email" id="adminEmail" placeholder="Admin Email" autocomplete="off">
+      <input type="password" id="adminPassword" placeholder="Password" autocomplete="off">
+      <button class="confirm-btn" onclick="loginAdmin()">Login</button>
+      <button class="cancel-btn" onclick="closeModal('adminModal')">Cancel</button>
+    </div>
+  </div>
+
+  <!-- REGISTER -->
+  <div class="modal-overlay" id="registerModal">
+    <div class="modal">
+      <h2>Sign Up</h2>
+      <input type="text" id="regName" placeholder="Full Name" autocomplete="off">
+      <input type="email" id="regEmail" placeholder="Email" autocomplete="off">
+      <input type="password" id="regPassword" placeholder="Password" autocomplete="off">
+      <button class="confirm-btn" onclick="registerMember()">Sign Up</button>
+      <button class="cancel-btn" onclick="closeModal('registerModal')">Cancel</button>
+    </div>
+  </div>
+
+  <!-- FORGOT PASSWORD -->
+  <div class="modal-overlay" id="forgotModal">
+    <div class="modal">
+      <h2>Forgot Password</h2>
+      <input type="email" id="forgotEmail" placeholder="Enter your Email" autocomplete="off">
+      <button class="confirm-btn" onclick="resetPassword()">Send Reset Link</button>
+      <button class="cancel-btn" onclick="closeModal('forgotModal')">Cancel</button>
+    </div>
+  </div>
+
+  <!-- PRIVACY NOTICE -->
+  <div class="modal-overlay" id="privacyModal">
+    <div class="modal">
+      <h2>Data Privacy Notice</h2>
+      <p style="text-align:left;color:#333;">
+        Your personal information will be used solely for SK profiling and program planning.
+      </p>
+      <button class="confirm-btn" onclick="closeModal('privacyModal')">Close</button>
+    </div>
+  </div>
+
+  <button class="privacy-btn" onclick="showPrivacy()">Privacy Notice</button>
+
+  <script>
+    const API_BASE = "http://localhost:4000/api";
+
+    /* LOAD ANNOUNCEMENTS (from admin) */
+    async function loadAnnouncements() {
+      try {
+        const res = await fetch("http://localhost:4000/api/admin/announcement/all");
+        const data = await res.json();
+
+        const box = document.getElementById("announcementContent");
+        box.innerHTML = "";
+
+        if (!data.announcements || data.announcements.length === 0) {
+          box.innerHTML = "<p>No announcements available.</p>";
+          return;
+        }
+
+        data.announcements.forEach(a => {
+          const div = document.createElement("div");
+          div.className = "announcement-item";
+          div.innerHTML = `
+            <h4 style="margin:0;color:#FFD700;">${a.title}</h4>
+            <p style="margin:5px 0;color:white;">${a.message}</p>
+            <small style="color:#ccc;">${new Date(a.created_at).toLocaleString()}</small>
+            <hr style="border:0;border-bottom:1px solid #FFD70033;margin:10px 0;">
+          `;
+          box.appendChild(div);
+        });
+      } catch (err) {
+        console.error("Announcement Error:", err);
+        document.getElementById("announcementContent").innerHTML = "<p>Error loading announcements.</p>";
+      }
+    }
+
+    loadAnnouncements();
+
+
+    /* MODAL CONTROL */
+    function showLogin(type) {
+      closeAllModals();
+      if (type === "admin") document.getElementById("adminModal").style.display = "flex";
+      else document.getElementById("loginModal").style.display = "flex";
+    }
+
+    function showRegister() {
+      closeAllModals();
+      document.getElementById("registerModal").style.display = "flex";
+    }
+
+    function showForgotPassword() {
+      closeAllModals();
+      document.getElementById("forgotModal").style.display = "flex";
+    }
+
+    function showPrivacy() {
+      closeAllModals();
+      document.getElementById("privacyModal").style.display = "flex";
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).style.display = "none";
+    }
+
+    function closeAllModals() {
+      ["loginModal","adminModal","registerModal","forgotModal","privacyModal"]
+        .forEach(id => { const el = document.getElementById(id); if (el) el.style.display = "none"; });
+    }
+
+    window.addEventListener("keydown", e => { if (e.key === "Escape") closeAllModals(); });
+
+    /* AUTH LOGIC (backend) */
+
+    // Helper: show simple alerts (you can replace with your toast)
+    function showMsg(msg){ alert(msg); }
+
+    async function registerMember() {
+      const name = document.getElementById('regName').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const pass = document.getElementById('regPassword').value;
+
+      if (!name || !email || !pass) return showMsg("Fill all fields.");
+
+      try {
+        const res = await fetch(`${API_BASE}/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password: pass, role: 'member' })
+        });
+        const data = await res.json();
+        if (data.error) return showMsg(data.error);
+        // Save token & user id for later pages
+        localStorage.setItem('sk_token', data.token);
+        localStorage.setItem('sk_user_id', data.user.id);
+        showMsg('Registration successful!');
+        closeModal('registerModal');
+      } catch (err) {
+        console.error(err);
+        showMsg('Registration failed.');
+      }
+    }
+
+    async function loginMember() {
+      const email = document.getElementById('loginEmail').value.trim();
+      const pass = document.getElementById('loginPassword').value;
+      if (!email || !pass) return showMsg('Fill email and password.');
+
+      try {
+        const res = await fetch(`${API_BASE}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password: pass })
+        });
+        const data = await res.json();
+        if (data.error) return showMsg(data.error);
+        localStorage.setItem('sk_token', data.token);
+        localStorage.setItem('sk_user_id', data.user.id);
+        // navigate to dashboard.html (same as before)
+        window.location.href = 'dashboard.html';
+      } catch (err) {
+        console.error(err);
+        showMsg('Login failed.');
+      }
+    }
+
+    async function loginAdmin() {
+      const email = document.getElementById('adminEmail').value.trim();
+      const pass = document.getElementById('adminPassword').value;
+      if (!email || !pass) return showMsg('Fill admin email and password.');
+      // Optional domain check (same as your previous logic)
+      if (!email.endsWith('@skadmin.com')) return showMsg('Admins only!');
+
+      try {
+        const res = await fetch(`${API_BASE}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password: pass })
+        });
+        const data = await res.json();
+        if (data.error) return showMsg(data.error);
+        // ensure role is admin (server returns role in user)
+        if (data.user.role !== 'admin') return showMsg('Not an admin account.');
+        localStorage.setItem('sk_token', data.token);
+        localStorage.setItem('sk_user_id', data.user.id);
+        window.location.href = 'admin.html';
+      } catch (err) {
+        console.error(err);
+        showMsg('Admin login failed.');
+      }
+    }
+
+    // Reset password placeholder
+    async function resetPassword() {
+      const email = document.getElementById('forgotEmail').value.trim();
+      if (!email) return showMsg('Enter email.');
+      // The backend does not implement email resets in this example.
+      showMsg('Password reset is not configured on this demo backend. Use pgAdmin to change password or implement an email flow.');
+      closeModal('forgotModal');
+    }
+
+    // Clear stored token on page load if invalid in some flows? (optional)
+    // If you want sign out button, use localStorage.removeItem('sk_token');
+
+  </script>
+
+</body>
+</html>

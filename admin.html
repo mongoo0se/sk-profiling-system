@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- KEEP YOUR ORIGINAL VISUAL HERE (NOT INCLUDED) -->
+  <!-- Original admin visual embedded below -->
+<!-- If you need to edit the raw visual file, open: /mnt/data/admin.html -->
+
+  <style>
+   /* (kept your original styles exactly as provided) */
+  :root{
+    --navy: #00274D;
+    --accent: #FFD700;
+    --card-bg: #ffffff;
+    --muted: #6b7280;
+    --danger: #e74c3c;
+    --blue: #0056b3;
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  }
+
+  body{
+    margin:0;
+    background: linear-gradient(135deg, var(--navy) 70%, var(--accent) 100%);
+    color: #fff;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+  }
+
+  .container{
+    max-width:1200px;
+    margin:28px auto;
+    padding:18px;
+    background: var(--navy);            /* card bg like your example */
+    border: 3px solid var(--accent);   /* golden border */
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    color: #fff;
+  }
+
+  .top-logos{ display:flex; justify-content:center; gap:32px; align-items:center; margin-bottom:18px; }
+  .top-logos img{ width:110px; height:110px; object-fit:cover; border-radius:50%; border:3px solid var(--accent); box-shadow:0 6px 20px rgba(0,0,0,0.12); background:var(--card-bg); }
+
+  .header-controls{ display:flex; justify-content:flex-end; margin-bottom:12px; }
+  .btn{ display:inline-block; padding:10px 14px; border-radius:8px; font-weight:700; cursor:pointer; border:none; }
+  .btn-danger{ background:var(--danger); color:#fff; }
+  .btn-primary{ background:var(--blue); color:var(--accent); }
+
+  .top-cards{ display:flex; gap:22px; align-items:flex-start; margin-bottom:20px; flex-wrap:wrap; }
+  .card{ background:var(--card-bg); border-radius:12px; padding:18px; box-shadow:0 6px 20px rgba(0,0,0,0.06); flex:1; min-width:300px; color: var(--navy); }
+  .card-left{ max-width:640px; flex-basis:58%; }
+  .card-right{ max-width:420px; flex-basis:38%; }
+
+  .summary-row{ display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:12px; }
+  .summary-count{ font-size:1.5rem; font-weight:800; color:var(--navy); }
+  .summary-label{ color:var(--muted); font-weight:700; }
+  .search-box{ margin-bottom:14px; }
+  .search-input{ width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--accent); font-size:1rem; box-sizing:border-box; background:#F5F5F5; color:var(--navy); }
+  .results-list{ margin-top:8px; max-height:260px; overflow:auto; border-radius:8px; border:1px solid #f0f3f7; padding:8px; background:#fbfdff; color:var(--navy); }
+  .result-item{ padding:8px 10px; border-radius:8px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; }
+  .result-item:hover{ background:#f4f7fb; }
+
+  .ann-title{ font-size:1.1rem; font-weight:800; color:var(--accent); margin-bottom:8px;}
+  .input, textarea { width:100%; padding:10px 12px; margin-bottom:8px; border-radius:8px; border:1px solid var(--accent); box-sizing:border-box; background:#F5F5F5; color:var(--navy); }
+  .post-btn{ width:100%; padding:11px 12px; border-radius:8px; border:none; font-weight:800; cursor:pointer; background:var(--blue); color:var(--accent); }
+
+  .az-grid{ display:flex; gap:10px; flex-wrap:wrap; margin-top:20px; margin-bottom:28px; }
+  .az-card{ min-width:40px; min-height:40px; display:flex; align-items:center; justify-content:center; border-radius:8px; background:linear-gradient(180deg,var(--card-bg),#fbfcfe); border:1px solid #e6edf6; box-shadow:0 4px 12px rgba(0,0,0,0.04); font-weight:800; cursor:pointer; user-select:none; color:var(--navy); }
+  .az-card.active{ background:var(--accent); color:var(--navy); }
+
+  .surname-panel{ margin-top:12px; background:var(--card-bg); padding:12px; border-radius:12px; box-shadow:0 6px 20px rgba(0,0,0,0.04); max-height:320px; overflow:auto; border:1px solid #eef3fb; color:var(--navy); }
+  .surname-item{ padding:8px 10px; border-radius:8px; cursor:pointer; }
+  .surname-item:hover{ background:#f4f7fb; }
+
+  .side-panel{ position:fixed; top:0; right:-520px; width:420px; height:100%; background:var(--card-bg); box-shadow:-10px 0 30px rgba(0,0,0,0.12); transition:right .28s cubic-bezier(.2,.9,.2,1); padding:20px; z-index:1500; overflow:auto; }
+  .side-panel.open{ right:0; }
+  .panel-header{ display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px; }
+  .panel-header h3{ margin:0; color:var(--navy); }
+  .panel-row{ margin-bottom:8px; color:#243447; }
+  .panel-row b{ display:inline-block; min-width:120px; color:var(--muted); font-weight:700; }
+
+  .panel-actions{ position:sticky; bottom:0; background:var(--card-bg); padding-top:12px; margin-top:12px; }
+
+  @media (max-width:880px){
+    .top-cards{ flex-direction:column; }
+    .card-left, .card-right{ flex-basis:100%; max-width:none; }
+    .side-panel{ width:100%; right:-100%; }
+    .side-panel.open{ right:0; }
+  }
+
+  </style>
+
+  <div class="container">
+
+    <div class="top-logos" aria-hidden="true">
+      <!-- Replace src with your actual logo file names -->
+      <img src="brgy.jpg" alt="Barangay Logo" />
+      <img src="sk.jpg" alt="SK Logo" />
+    </div>
+
+    <div class="header-controls">
+      <button class="btn btn-danger" onclick="logout()">Logout</button>
+    </div>
+
+    <div class="top-cards">
+      <!-- LEFT CARD: Members summary + search + results -->
+      <div class="card card-left">
+        <div class="summary-row">
+          <div>
+            <div class="summary-label">Members Submitted</div>
+            <div id="membersCount" class="summary-count">0</div>
+          </div>
+          <div style="text-align:right;color:var(--muted);font-weight:700;">SK Members</div>
+        </div>
+
+        <div class="search-box">
+          <input id="searchInput" class="search-input" placeholder="Search members by name, email, contact, address..." />
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <div style="font-weight:800;color:var(--muted)">Search Results</div>
+          <div id="resultsCount" style="font-weight:800;color:var(--muted)">0</div>
+        </div>
+
+        <div id="resultsList" class="results-list" aria-live="polite">
+          <!-- matched results appear here -->
+          <div style="color:var(--muted); padding:8px;">Type to search or click a letter below.</div>
+        </div>
+      </div>
+
+      <!-- RIGHT CARD: Post Announcement -->
+      <div class="card card-right">
+        <div class="ann-title">Post Announcement</div>
+        <input id="annTitle" class="input" placeholder="Title" />
+        <textarea id="annMessage" rows="6" class="input" placeholder="Message"></textarea>
+        <button id="postAnnouncement" class="post-btn">Post Announcement</button>
+        <div id="annStatus" style="margin-top:10px;font-weight:700;color:var(--blue)"></div>
+        <div style="margin-top:20px;font-weight:800;color:var(--accent)">Announcements</div>
+<div id="adminAnnouncements" style="margin-top:10px;"></div>
+      </div>
+    </div>
+
+    <!-- A-Z GRID -->
+    <div class="az-grid" id="azGrid" aria-label="Alphabet filter">
+      <!-- letters will be generated by JS -->
+    </div>
+
+    <!-- Surname list -->
+    <div class="surname-panel" id="surnamePanel">
+      <div id="surnameHeader" style="font-weight:800;color:var(--muted);margin-bottom:8px;">Surname list (click a surname to view details)</div>
+      <div id="surnameList">
+        <!-- surname items inserted here -->
+        <div style="color:var(--muted)">Click a letter above to filter surnames.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Slide-in side panel for member details -->
+  <div id="sidePanel" class="side-panel" aria-hidden="true">
+    <div class="panel-header">
+      <h3 id="panelName">Member Details</h3>
+      <div>
+        <button class="btn" style="background:#f1f5f9;border:1px solid #e6eef6;font-weight:700;" onclick="closePanel()">Close</button>
+      </div>
+    </div>
+
+    <div id="panelContent" style="padding-bottom:12px;">
+      <!-- details populated by JS -->
+      <div class="panel-row"><b>Name:</b> <span id="p_name"></span></div>
+      <div class="panel-row"><b>Email:</b> <span id="p_email"></span></div>
+      <div class="panel-row"><b>Date of Birth:</b> <span id="p_dob"></span></div>
+      <div class="panel-row"><b>Age:</b> <span id="p_age"></span></div>
+      <div class="panel-row"><b>Gender:</b> <span id="p_gender"></span></div>
+      <div class="panel-row"><b>Contact:</b> <span id="p_contact"></span></div>
+      <div class="panel-row"><b>Address:</b> <span id="p_address"></span></div>
+      <div class="panel-row"><b>School Level:</b> <span id="p_school_level"></span></div>
+      <div class="panel-row"><b>Employment:</b> <span id="p_employment"></span></div>
+      <div class="panel-row"><b>Guardian:</b> <span id="p_guardian"></span></div>
+      <!-- add other fields as needed -->
+    </div>
+
+    <div class="panel-actions">
+      <button id="deleteBtn" class="btn" style="background:var(--danger);color:#fff;margin-right:8px;" onclick="confirmDelete()">Delete Member</button>
+      <button id="exportMemberPdfBtn" class="btn" style="background:var(--blue);color:var(--accent);margin-right:8px;" onclick="exportMemberPdf()">Export PDF</button>
+      <button class="btn" style="background:#f1f5f9;border:1px solid #e6eef6;font-weight:700;" onclick="closePanel()">Close</button>
+    </div>
+  </div>
+
+  <!-- confirm dialog (simple) -->
+  <div id="confirmOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1600;align-items:center;justify-content:center;">
+    <div style="background:#fff;padding:20px;border-radius:12px;max-width:360px;box-shadow:0 8px 30px rgba(0,0,0,0.18);text-align:center;">
+      <div style="font-weight:800;margin-bottom:8px;color:var(--navy)">Confirm Delete</div>
+      <div style="color:var(--muted);margin-bottom:16px;">Are you sure you want to delete this member?</div>
+      <div style="display:flex;gap:8px;justify-content:center;">
+        <button onclick="doDelete()" class="btn" style="background:var(--danger);color:#fff;">Yes, Delete</button>
+        <button onclick="hideConfirm()" class="btn" style="background:#f1f5f9;border:1px solid #e6eef6;">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- html2pdf library for admin exports -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+
+  <script>
+  // ======= CLEAN, SINGLE ADMIN SCRIPT (uses /api/admin routes) =======
+  (function(){
+    const API = 'http://localhost:4000/api/admin';
+    const token = localStorage.getItem('sk_token') || '';
+    const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+
+    // DOM references (your existing IDs)
+    const membersCountEl = document.getElementById('membersCount');
+    const searchInput = document.getElementById('searchInput');
+    const resultsList = document.getElementById('resultsList');
+    const resultsCount = document.getElementById('resultsCount');
+    const azGrid = document.getElementById('azGrid');
+    const surnameListEl = document.getElementById('surnameList');
+    const sidePanel = document.getElementById('sidePanel');
+    const panelName = document.getElementById('panelName');
+    const panelFields = {
+      p_name: document.getElementById('p_name'),
+      p_email: document.getElementById('p_email'),
+      p_dob: document.getElementById('p_dob'),
+      p_age: document.getElementById('p_age'),
+      p_gender: document.getElementById('p_gender'),
+      p_contact: document.getElementById('p_contact'),
+      p_address: document.getElementById('p_address'),
+      p_school_level: document.getElementById('p_school_level'),
+      p_employment: document.getElementById('p_employment'),
+      p_guardian: document.getElementById('p_guardian')
+    };
+    const annTitle = document.getElementById('annTitle');
+    const annMessage = document.getElementById('annMessage');
+    const postAnnouncementBtn = document.getElementById('postAnnouncement');
+    const annStatus = document.getElementById('annStatus');
+
+    // data store
+    let allMembers = []; // normalized array from backend (uses id, name, surname, contact, address, guardian_name, img_base64, image_mime)
+    let currentDisplayed = [];
+    let currentSelectedId = null;
+
+    // small helper
+    function extractSurnameFromRecord(m){
+      // backend may return surname field, or store full name in name. Try surname first.
+      if(m.surname) return (m.surname + '').toUpperCase();
+      if(m.name){
+        // if "LAST, FIRST" style, split by comma
+        if((m.name+'').includes(',')) return m.name.split(',')[0].trim().toUpperCase();
+        const parts = (m.name+'').trim().split(/\s+/);
+        return parts.length ? parts[parts.length-1].toUpperCase() : (m.name+'').toUpperCase();
+      }
+      return '';
+    }
+
+    // render A-Z
+    function buildAZ(){
+      azGrid.innerHTML = '';
+      const letters = Array.from({length:26},(_,i)=>String.fromCharCode(65+i));
+      letters.forEach(l=>{
+        const el = document.createElement('div');
+        el.className = 'az-card';
+        el.textContent = l;
+        el.dataset.letter = l;
+        el.addEventListener('click', ()=> onLetterClick(l, el));
+        azGrid.appendChild(el);
+      });
+    }
+
+    function onLetterClick(letter, el){
+      document.querySelectorAll('.az-card').forEach(c=>c.classList.remove('active'));
+      el.classList.add('active');
+      // call backend filter for that letter (server-side)
+      filterByLetter(letter);
+      // clear search input
+      if(searchInput) searchInput.value = '';
+    }
+
+    // initial load: fetch members (via admin search with empty q) and announcements
+    async function init(){
+      try{
+        // fetch members via admin search (empty q)
+        const membersRes = await fetch(`${API}/members/search?q=`, { headers });
+        if(membersRes.status === 401 || membersRes.status === 403){
+          // auth error
+          alert('Unauthorized. Please login as admin again.');
+          localStorage.removeItem('sk_token');
+          window.location.href = 'index.html';
+          return;
+        }
+        if(membersRes.ok){
+          const json = await membersRes.json();
+          allMembers = (json.members || []).map(m => {
+            // normalize: ensure id, name, surname exist
+            return {
+              id: m.id,
+              name: m.name,
+              surname: m.surname,
+              contact: m.contact,
+              address: m.address,
+              guardian_name: m.guardian_name,
+              img_base64: m.img_base64,
+              image_mime: m.image_mime,
+              // keep any other fields
+              ...m
+            };
+          });
+          membersCountEl.textContent = allMembers.length;
+        } else {
+          console.warn('members fetch failed', membersRes.status);
+        }
+
+        // fetch announcements (optional; won't display in UI unless you add)
+        try {
+          const annRes = await fetch(`${API}/announcement/all`, { headers });
+          if(annRes.ok){
+            const annJson = await annRes.json();
+            console.log('announcements loaded', annJson.announcements && annJson.announcements.length);
+          }
+        } catch(e){ console.warn('ann fetch failed', e); }
+
+        buildAZ();
+        showEmptyPrompt();
+      } catch(err){
+        console.error('init error', err);
+      }
+    }
+
+    function showEmptyPrompt(){
+      currentDisplayed = [];
+      if(resultsCount) resultsCount.textContent = 0;
+      if(resultsList) resultsList.innerHTML = '<div style="color:var(--muted);padding:8px;">Type to search or click a letter below.</div>';
+    }
+
+    // render list (when search returns results)
+    function renderSearchResults(list){
+      currentDisplayed = list;
+      resultsCount.textContent = list.length;
+      resultsList.innerHTML = '';
+      if(!list.length){
+        resultsList.innerHTML = '<div style="color:var(--muted);padding:8px;">No results found.</div>';
+        return;
+      }
+      list.slice(0,200).forEach(m=>{
+        const item = document.createElement('div');
+        item.className = 'result-item';
+        const left = document.createElement('div');
+        left.style.fontWeight = '800';
+        left.textContent = (m.name || ((m.surname?m.surname+', ':'') + (m.firstname||'')));
+        const right = document.createElement('div');
+        right.style.fontSize = '.85rem';
+        right.style.color = 'var(--muted)';
+        right.textContent = m.contact || m.email || '';
+        item.appendChild(left);
+        item.appendChild(right);
+        item.addEventListener('click', ()=> openMemberPanelById(m.id));
+        resultsList.appendChild(item);
+      });
+      if(list.length > 200){
+        const more = document.createElement('div');
+        more.style.padding = '8px';
+        more.style.color = 'var(--muted)';
+        more.textContent = `Showing first 200 of ${list.length} results. Refine your search to see fewer results.`;
+        resultsList.appendChild(more);
+      }
+    }
+
+    // search handler (calls backend search)
+    let searchTimer = null;
+    if(searchInput){
+      searchInput.addEventListener('input', ()=>{
+        const q = searchInput.value.trim();
+        clearTimeout(searchTimer);
+        if(!q){
+          showEmptyPrompt();
+          return;
+        }
+        searchTimer = setTimeout(()=> performSearch(q), 220);
+      });
+    }
+
+    async function performSearch(q){
+      try{
+        const res = await fetch(`${API}/members/search?q=${encodeURIComponent(q)}`, { headers });
+        if(res.status === 401){ alert('Unauthorized. Please login again.'); localStorage.removeItem('sk_token'); window.location.href='index.html'; return; }
+        const json = await res.json();
+        const list = (json.members || []);
+        renderSearchResults(list);
+      } catch(err){
+        console.error('search error', err);
+      }
+    }
+
+    // letter filter (server-side)
+    async function filterByLetter(letter){
+      try{
+        const res = await fetch(`${API}/members/filter/${letter}`, { headers });
+        if(res.status === 401){ alert('Unauthorized.'); localStorage.removeItem('sk_token'); window.location.href='index.html'; return; }
+        const json = await res.json();
+        const list = (json.members || []);
+        // render surname list on right
+        renderSurnamePanel(list);
+      } catch(err){
+        console.error('filter error', err);
+      }
+    }
+
+    function renderSurnamePanel(list){
+      surnameListEl.innerHTML = '';
+      if(!list.length){
+        surnameListEl.innerHTML = '<div style="color:var(--muted)">No members found for that letter.</div>';
+        return;
+      }
+      list.forEach(m=>{
+        const div = document.createElement('div');
+        div.className = 'surname-item';
+        const surname = m.surname || (m.name && (m.name.includes(',')? m.name.split(',')[0].trim() : m.name.split(' ').slice(-1)[0]));
+        div.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;">
+          <div style="font-weight:800">${surname||''}</div>
+          <div style="font-size:.9rem;color:var(--muted)">${m.name||''}</div>
+        </div>`;
+        div.addEventListener('click', ()=> openMemberPanelById(m.id));
+        surnameListEl.appendChild(div);
+      });
+    }
+
+    // open profile by id (fetch full profile from backend)
+    async function openMemberPanelById(id){
+      try{
+        const res = await fetch(`${API}/members/profile/${id}`, { headers });
+        if(res.status === 401){ alert('Unauthorized.'); localStorage.removeItem('sk_token'); window.location.href='index.html'; return; }
+        if(!res.ok){ alert('Profile not found'); return; }
+        const json = await res.json();
+        const p = json.profile || {};
+        populatePanel(p);
+        // open
+        sidePanel.classList.add('open');
+        sidePanel.setAttribute('aria-hidden','false');
+        currentSelectedId = id;
+      } catch(err){
+        console.error('load profile error', err);
+      }
+    }
+
+    function populatePanel(p){
+      panelName.textContent = p.name || (p.surname ? p.surname+', '+(p.name||'') : 'Member Details');
+      panelFields.p_name.textContent = (p.name && p.surname) ? `${p.surname}, ${p.name}` : (p.name || p.surname || '');
+      panelFields.p_email.textContent = p.email || '';
+      panelFields.p_dob.textContent = p.dob || p.date_of_birth || '';
+      panelFields.p_age.textContent = p.age || '';
+      panelFields.p_gender.textContent = p.gender || '';
+      panelFields.p_contact.textContent = p.contact || '';
+      panelFields.p_address.textContent = p.address || '';
+      panelFields.p_school_level.textContent = p.school_level || p.education || '';
+      panelFields.p_employment.textContent = p.employment || '';
+      panelFields.p_guardian.textContent = (p.guardian_name || '') + (p.guardian_contact ? (' ('+p.guardian_contact+')') : '');
+
+      // show image if backend provides base64
+      if(p.img_base64){
+        // create an image in panel if you want; your template doesn't include an <img> so skip unless you add one
+        // e.g., document.getElementById('panelPhoto').src = `data:${p.image_mime||'image/jpeg'};base64,${p.img_base64}`;
+      }
+    }
+
+    // close panel
+    window.closePanel = function(){
+      sidePanel.classList.remove('open');
+      sidePanel.setAttribute('aria-hidden','true');
+      currentSelectedId = null;
+    };
+
+    // delete flow
+    let pendingDeleteId = null;
+    window.confirmDelete = function(){
+      if(!currentSelectedId) return;
+      pendingDeleteId = currentSelectedId;
+      document.getElementById('confirmOverlay').style.display = 'flex';
+    };
+    window.hideConfirm = function(){ pendingDeleteId = null; document.getElementById('confirmOverlay').style.display = 'none'; };
+
+    window.doDelete = async function(){
+      if(!pendingDeleteId) return;
+      try{
+        // NOTE: server must implement a DELETE admin route; admin.js did not include DELETE in uploaded files.
+        // If you have DELETE route (e.g. DELETE /api/admin/members/delete/:id), use that. Otherwise remove delete UI.
+        const res = await fetch(`${API}/members/delete/${pendingDeleteId}`, {
+          method: 'DELETE',
+          headers: { ...headers, 'Content-Type': 'application/json' }
+        });
+        if(res.status === 401){ alert('Unauthorized'); localStorage.removeItem('sk_token'); window.location.href='index.html'; return; }
+        if(res.ok){
+          hideConfirm();
+          closePanel();
+          // remove locally if present
+          allMembers = allMembers.filter(m=>m.id !== pendingDeleteId);
+          membersCountEl.textContent = allMembers.length;
+          alert('Member deleted.');
+        } else {
+          const d = await res.json().catch(()=>({}));
+          alert('Delete failed: '+ (d.error || res.status));
+          hideConfirm();
+        }
+      } catch(err){
+        hideConfirm();
+        alert('Error deleting: ' + err.message);
+      }
+    };
+
+    // announcements posting (admin route)
+    if(postAnnouncementBtn){
+      postAnnouncementBtn.addEventListener('click', async ()=>{
+        const title = annTitle.value.trim();
+        const message = annMessage.value.trim();
+        if(!title || !message){ annStatus.style.color = 'var(--danger)'; annStatus.textContent = 'Please fill both title and message.'; return; }
+        postAnnouncementBtn.disabled = true;
+        annStatus.style.color = 'var(--blue)'; annStatus.textContent = 'Posting...';
+        try{
+          const res = await fetch(`${API}/announcement`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...headers },
+            body: JSON.stringify({ title, message })
+          });
+          const d = await res.json().catch(()=>({}));
+          if(res.ok){ annStatus.style.color = 'green'; annStatus.textContent = 'Announcement posted!'; annTitle.value=''; annMessage.value=''; }
+          else { annStatus.style.color = 'var(--danger)'; annStatus.textContent = d.error || 'Error posting.'; }
+        }catch(err){
+          annStatus.style.color = 'var(--danger)'; annStatus.textContent = 'Error: ' + err.message;
+        }finally{
+          postAnnouncementBtn.disabled = false;
+          setTimeout(()=> annStatus.textContent = '', 3000);
+        }
+      });
+    }
+// ===== ANNOUNCEMENT LOADER + DELETE SYSTEM =====
+
+async function loadAdminAnnouncements() {
+  try {
+    const res = await fetch(`${API}/announcement/all`, { headers });
+    if (!res.ok) return;
+
+    const data = await res.json();
+    const list = data.announcements || [];
+    const container = document.getElementById("adminAnnouncements");
+    container.innerHTML = "";
+
+    if (list.length === 0) {
+      container.innerHTML = `<div style="color:var(--muted)">No announcements posted.</div>`;
+      return;
+    }
+
+    list.forEach(a => {
+      const div = document.createElement("div");
+      div.style = "background:#fff;color:#000;padding:10px;border-radius:8px;margin-bottom:8px;border:1px solid #ccc;";
+      div.innerHTML = `
+        <div style="font-weight:700">${a.title}</div>
+        <div style="margin:5px 0;">${a.message}</div>
+        <button class="btn"
+          style="background:#e74c3c;color:#fff;font-size:.8rem;padding:6px 10px;margin-top:6px;"
+          onclick="deleteAnnouncement('${a.id}')">Delete</button>
+      `;
+      container.appendChild(div);
+    });
+
+  } catch (e) {
+    console.error("loadAdminAnnouncements error", e);
+  }
+}
+
+window.deleteAnnouncement = async function(id) {
+  if (!confirm("Delete this announcement?")) return;
+
+  try {
+    const res = await fetch(`${API}/announcement/${id}`, {
+      method: "DELETE",
+      headers
+    });
+
+    if (res.ok) {
+      alert("Announcement deleted.");
+      loadAdminAnnouncements();
+    } else {
+      alert("Delete failed.");
+    }
+
+  } catch (e) {
+    console.error("deleteAnnouncement error", e);
+    alert("Error deleting announcement.");
+  }
+};
+
+    // export PDF function (keeps existing behavior)
+    window.exportMemberPdf = function(){
+      const panel = document.getElementById('panelContent');
+      if(!panel) return alert('No member selected.');
+      // build PDF content from panel fields (same implementation as before)
+      const values = {
+        Name: panel.querySelector('#p_name')?.textContent || '',
+        Email: panel.querySelector('#p_email')?.textContent || '',
+        'Date of Birth': panel.querySelector('#p_dob')?.textContent || '',
+        Age: panel.querySelector('#p_age')?.textContent || '',
+        Gender: panel.querySelector('#p_gender')?.textContent || '',
+        Contact: panel.querySelector('#p_contact')?.textContent || '',
+        Address: panel.querySelector('#p_address')?.textContent || '',
+        'School Level': panel.querySelector('#p_school_level')?.textContent || '',
+        Employment: panel.querySelector('#p_employment')?.textContent || '',
+        Guardian: panel.querySelector('#p_guardian')?.textContent || ''
+      };
+      const container = document.createElement('div');
+      container.style.fontFamily = 'Arial, Helvetica, sans-serif';
+      container.style.color = '#102a43';
+      container.style.padding = '18px';
+      container.style.width = '100%';
+      container.style.maxWidth = '780px';
+      container.style.margin = '0 auto';
+      container.style.background = '#fff';
+      const style = document.createElement('style');
+      style.textContent = `
+        .pdf-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+        .pdf-logo { width:72px; height:72px; object-fit:cover; border-radius:8px; border:1px solid #e6eaf0; }
+        .pdf-title { text-align:center; flex:1; font-size:18px; color:#00274D; font-weight:800; }
+        .pdf-date { font-size:12px; color:#657786; min-width:140px; text-align:right; }
+        .pdf-table { width:100%; border-collapse:collapse; margin-top:8px; }
+        .pdf-table td { padding:8px 10px; vertical-align:top; border-bottom:1px solid #eef2f6; }
+        .label { width:36%; font-weight:700; color:#334e68; }
+        .value { width:64%; color:#102a43; }
+        .pdf-footer { margin-top:18px; font-size:11px; color:#8696a7; text-align:center; }
+      `;
+      container.appendChild(style);
+      const header = document.createElement('div'); header.className='pdf-header';
+      const logo = document.createElement('img'); logo.src='images/OIP (1).jpg'; logo.className='pdf-logo';
+      const title = document.createElement('div'); title.className='pdf-title';
+      title.innerHTML = 'Sangguniang Kabataan<br><span style="font-weight:600;font-size:13px;color:#376092">Member Details</span>';
+      const date = document.createElement('div'); date.className='pdf-date'; date.innerText = 'Generated: ' + new Date().toLocaleString();
+      header.appendChild(logo); header.appendChild(title); header.appendChild(date);
+      container.appendChild(header);
+      const table = document.createElement('table'); table.className='pdf-table';
+      Object.keys(values).forEach(k=>{
+        const tr = document.createElement('tr');
+        const tdLabel = document.createElement('td'); tdLabel.className='label'; tdLabel.textContent = k + ':';
+        const tdValue = document.createElement('td'); tdValue.className='value'; tdValue.textContent = values[k];
+        tr.appendChild(tdLabel); tr.appendChild(tdValue); table.appendChild(tr);
+      });
+      container.appendChild(table);
+      const footer = document.createElement('div'); footer.className='pdf-footer'; footer.textContent = 'Generated from SK Profiling System · For verification contact your barangay SK office.';
+      container.appendChild(footer);
+      const fileBase = (values.Name || 'member').replace(/[\/\\:?<>|\"]/g,'').trim();
+      const opt = { margin: 10, filename: `${fileBase}_details.pdf`, image:{type:'jpeg',quality:0.98}, html2canvas:{scale:2,useCORS:true}, jsPDF:{unit:'mm',format:'a4',orientation:'portrait'} };
+      html2pdf().set(opt).from(container).save().catch(err=>{ console.error('Member PDF export failed', err); alert('Failed to export PDF.'); });
+    };
+
+    // logout helper
+    window.logout = function(){ try{ sessionStorage.clear(); }catch(e){} localStorage.removeItem('sk_token'); window.location.href='index.html'; };
+
+    // close overlay on outside click
+    document.getElementById('confirmOverlay')?.addEventListener('click', (e)=>{ if(e.target === document.getElementById('confirmOverlay')) hideConfirm(); });
+
+    // esc to close panel
+    window.addEventListener('keydown', (e)=>{ if(e.key === 'Escape'){ if(sidePanel.classList.contains('open')) closePanel(); else document.querySelectorAll('.az-card').forEach(c=>c.classList.remove('active')); } });
+
+    // initial
+    init();
+    loadAdminAnnouncements();
+
+    // expose closePanel for existing onclicks
+    window.closePanel = window.closePanel || function(){ sidePanel.classList.remove('open'); sidePanel.setAttribute('aria-hidden','true'); };
+
+  })();
+  </script>
+
+</body>
+</html>
